@@ -1,0 +1,100 @@
+	::selection{ background-color: #E13300; color: white; }
+	::moz-selection{ background-color: #E13300; color: white; }
+	::webkit-selection{ background-color: #E13300; color: white; }
+
+	body {
+		margin: 40px;
+		color: rgb(94, 94, 94);
+		font-family: ArialMT, Arial, sans-serif;
+		overflow: auto;
+	}
+
+	a {
+		color: #003399;
+		background-color: transparent;
+		font-weight: normal;
+		font-family: ArialMT, Arial, sans-serif;
+	}
+	
+	
+	table { 
+	border:1px solid #EAEAEA;
+}
+td {
+	border-right: 1px solid #EAEAEA;
+	border-top: 1px solid #FFF;
+	border-bottom: 1px solid #EAEAEA;
+	border-left: 1px solid #EAEAEA;
+	font-size: 14px;
+}
+.highlight {
+	border-right: 1px solid red;
+	border-top: 1px solid red;
+	border-bottom: 1px solid red;
+	border-left: 1px solid red;
+}
+
+.calendar-day, .calendar-header-day {
+	font-size: 13px;
+	}
+	
+.noschool {
+	font-weight: bold;
+	
+}
+
+.halfday {
+	background: aquamarine;
+}
+
+.userdate {
+	background: pink;
+	}
+
+.day180 {
+	background: lightblue;
+}
+
+.hours990 {
+	background: blue;
+	}
+
+.weekend {
+	background:lightgray;
+	}
+
+.holiday {
+	background: lightgreen;
+	}
+
+/* Start of Column CSS */
+#container2 {
+	clear:left;
+	float:left;
+	width:100%;
+	overflow:hidden;
+	background:beige; /* column 2 background colour */
+}
+#container1 {
+	float:left;
+	width:100%;
+	position:relative;
+	right:50%;
+	background:LightGoldenRodYellow ; /* column 1 background colour */
+}
+#col1 {
+    float:left;
+    width:46%;
+    position:relative;
+    left:50%;  
+
+}
+#col2 {
+    float:left;
+    width:46%;
+    position:relative;
+    left:56%;
+
+}
+/* --> */
+

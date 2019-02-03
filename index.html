@@ -1,0 +1,1000 @@
+<html>
+
+<head>
+<title>School Calendar Calculator</title>
+
+<link rel="stylesheet" href="stylesheet.css" type="text/css" media="screen"/>
+<script src="jquery.min.js"></script>
+<link rel="stylesheet" href="jquery-ui.css" />
+<script src="jquery-ui.min.js"></script>
+
+<script  type="text/javascript">
+
+// THIS WAS WRITTEN BY STEVE SALTMAN, WITH THE HELP OF STACKOVERFLOW AND A FEW OTHER SITES.
+// THE CALENDAR GENERATOR IS MODIFED FROM CODE I GOT HERE: http://jszen.blogspot.com.au/2007/03/how-to-build-simple-calendar-with.html
+// COPYRIGHT 2015 AND ONGOING BY STEVE SALTMAN
+// I REALLY WANT TO PUT FOUL LANGUAGE HERE, BUT MY KIDS MIGHT READ THIS SO I'M NOT GOING TO
+
+//BEGIN....................................
+
+
+//START ON AUGUST OF THIS YEAR
+var firstdayofschool = new Date();
+firstdayofschool.setDate(25);
+firstdayofschool.setMonth(7);
+
+  $(function() {
+	$( "#datepicker" ).datepicker( );
+	$( "#datepicker" ).datepicker( "setDate", firstdayofschool );
+  });
+  
+var lastdayofschool = new Date(firstdayofschool);
+lastdayofschool.setYear(firstdayofschool.getFullYear()+ +1);
+
+var instructhoursreq = 59400;
+
+var dayarray=[];
+var desc=[];
+var newdate = new Date();
+var schooldaycounter = 1;
+var instructhourscounter = 0
+
+//omitting var to make it global - learned this...
+userdates = [];
+
+//ROSH HASHANA
+var rosharray = new Array();
+rosharray.push( new Date ('09/25/2014'));
+rosharray.push( new Date ('09/14/2015'));
+rosharray.push( new Date ('10/03/2016'));
+rosharray.push( new Date ('09/21/2017'));
+rosharray.push( new Date ('09/10/2018'));
+rosharray.push( new Date ('09/30/2019'));
+rosharray.push( new Date ('09/19/2020'));
+
+//YOM KIPPUR
+var yomarray = new Array();
+yomarray.push( new Date ('10/04/2014'));
+yomarray.push( new Date ('09/23/2015'));
+yomarray.push( new Date ('10/12/2016'));
+yomarray.push( new Date ('09/30/2017'));
+yomarray.push( new Date ('09/19/2018'));
+yomarray.push( new Date ('10/09/2019'));
+yomarray.push( new Date ('09/28/2020'));
+
+//GOOD FRIDAY
+var goodarray = new Array();
+goodarray.push( new Date ('04/18/2014'));
+goodarray.push( new Date ('04/03/2015'));
+goodarray.push( new Date ('03/25/2016'));
+goodarray.push( new Date ('04/14/2017'));
+goodarray.push( new Date ('03/30/2018'));
+goodarray.push( new Date ('04/19/2019'));
+goodarray.push( new Date ('04/10/2020'));
+
+//CHINESE NEW YEAR
+var chinesearray = new Array();
+chinesearray.push( new Date ('02/15/2015'));
+chinesearray.push( new Date ('02/08/2016'));
+chinesearray.push( new Date ('01/28/2017'));
+chinesearray.push( new Date ('02/16/2018'));
+chinesearray.push( new Date ('02/05/2019'));
+chinesearray.push( new Date ('01/25/2020'));
+chinesearray.push( new Date ('02/12/2021'));
+chinesearray.push( new Date ('02/01/2022'));
+chinesearray.push( new Date ('01/22/2023'));
+chinesearray.push( new Date ('02/10/2024'));
+chinesearray.push( new Date ('01/29/2025'));
+chinesearray.push( new Date ('02/17/2026'));
+chinesearray.push( new Date ('02/06/2027'));
+chinesearray.push( new Date ('01/26/2028'));
+chinesearray.push( new Date ('02/13/2029'));
+chinesearray.push( new Date ('02/03/2030'));
+
+//diwali
+var diwaliarray = new Array();
+diwaliarray.push( new Date ('11/11/2015'));
+diwaliarray.push( new Date ('10/30/2016'));
+diwaliarray.push( new Date ('10/19/2017'));
+diwaliarray.push( new Date ('11/7/2018'));
+diwaliarray.push( new Date ('10/27/2019'));
+diwaliarray.push( new Date ('11/14/2020'));
+diwaliarray.push( new Date ('11/4/2021'));
+diwaliarray.push( new Date ('10/24/2022'));
+diwaliarray.push( new Date ('11/12/2023'));
+diwaliarray.push( new Date ('11/1/2024'));
+diwaliarray.push( new Date ('10/21/2025'));
+
+
+// these are labels for the days of the week
+cal_days_labels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+// these are human-readable month name labels, in order
+cal_months_labels = ['January', 'February', 'March', 'April',
+                     'May', 'June', 'July', 'August', 'September',
+                     'October', 'November', 'December'];
+
+// these are the days of EACH MONTH for each month, in order
+cal_days_in_month = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+
+block_minutes = [0,340,330,345,330,340,0];
+
+// this is the current date
+cal_current_date = new Date(); 
+
+$(document).ready(function(){
+
+//TURN ON TOOLTIPS
+  $(function() {
+    $( document ).tooltip();
+  });
+
+	//i chose a random element to change to launch on page load
+	$(function () {
+		$("#thanksgivingday").change();
+	});
+
+	//any of these re-runs the calendar script
+	$('#thanksgivingday, #newyearsday, #martinlutherkingday, #presidentsday, #patriotsday, #memorialday, #laborday, #columbusday, #veteransday,#christmasday, #christmasvacation, #presidentsweek, #aprilvacation, #roshhashana, #yomkippur, #goodfriday, #easterbreak, #datepicker, #chinesenewyear, #diwali, #christmaseve').on('change', function() {
+	
+	//TRY FOR MOUSEOVER OF HOLIDAYS:
+	$("#newyearsday").on("mouseover mouseout", function(event) {
+	  if ( event.type == "mouseover" ) {
+		$("TD[title*='New Years']").addClass("highlight");
+	  } else {
+		$("TD[title*='New Years']").removeClass("highlight");
+	  }
+	});
+	
+	$("#martinlutherkingday").on("mouseover mouseout", function(event) {
+	  if ( event.type == "mouseover" ) {
+		$("TD[title*='MLK']").addClass("highlight");
+	  } else {
+		$("TD[title*='MLK']").removeClass("highlight");
+	  }
+	});
+ 
+ 	$("#presidentsday").on("mouseover mouseout", function(event) {
+	  if ( event.type == "mouseover" ) {
+		$("TD[title*='Presidents']").addClass("highlight");
+	  } else {
+		$("TD[title*='Presidents']").removeClass("highlight");
+	  }
+	});
+
+ 	$("#thanksgivingday").on("mouseover mouseout", function(event) {
+	  if ( event.type == "mouseover" ) {
+		$("TD[title*='Thanksgiving']").addClass("highlight");
+	  } else {
+		$("TD[title*='Thanksgiving']").removeClass("highlight");
+	  }
+	});
+
+ 	$("#patriotsday").on("mouseover mouseout", function(event) {
+	  if ( event.type == "mouseover" ) {
+		$("TD[title*='Patriot']").addClass("highlight");
+	  } else {
+		$("TD[title*='Patriot']").removeClass("highlight");
+	  }
+	});
+
+ 	$("#memorialday").on("mouseover mouseout", function(event) {
+	  if ( event.type == "mouseover" ) {
+		$("TD[title*='Memorial']").addClass("highlight");
+	  } else {
+		$("TD[title*='Memorial']").removeClass("highlight");
+	  }
+	});
+	
+ 	$("#laborday").on("mouseover mouseout", function(event) {
+	  if ( event.type == "mouseover" ) {
+		$("TD[title*='Labor']").addClass("highlight");
+	  } else {
+		$("TD[title*='Labor']").removeClass("highlight");
+	  }
+	});
+	
+ 	$("#columbusday").on("mouseover mouseout", function(event) {
+	  if ( event.type == "mouseover" ) {
+		$("TD[title*='Columbus']").addClass("highlight");
+	  } else {
+		$("TD[title*='Columbus']").removeClass("highlight");
+	  }
+	});
+	
+ 	$("#veteransday").on("mouseover mouseout", function(event) {
+	  if ( event.type == "mouseover" ) {
+		$("TD[title*='Veteran']").addClass("highlight");
+	  } else {
+		$("TD[title*='Veteran']").removeClass("highlight");
+	  }
+	});
+	
+ 	$("#christmasday").on("mouseover mouseout", function(event) {
+	  if ( event.type == "mouseover" ) {
+		$("TD[title*='Christmas Day']").addClass("highlight");
+	  } else {
+		$("TD[title*='Christmas Day']").removeClass("highlight");
+	  }
+	});
+	
+ 	$("#roshhashana").on("mouseover mouseout", function(event) {
+	  if ( event.type == "mouseover" ) {
+		$("TD[title*='Rosh']").addClass("highlight");
+	  } else {
+		$("TD[title*='Rosh']").removeClass("highlight");
+	  }
+	});
+	
+ 	$("#yomkippur").on("mouseover mouseout", function(event) {
+	  if ( event.type == "mouseover" ) {
+		$("TD[title*='Kippur']").addClass("highlight");
+	  } else {
+		$("TD[title*='Kippur']").removeClass("highlight");
+	  }
+	});
+	
+ 	$("#goodfriday").on("mouseover mouseout", function(event) {
+	  if ( event.type == "mouseover" ) {
+		$("TD[title*='Good']").addClass("highlight");
+	  } else {
+		$("TD[title*='Good']").removeClass("highlight");
+	  }
+	});
+	
+ 	$("#presidentsweek").on("mouseover mouseout", function(event) {
+	  if ( event.type == "mouseover" ) {
+		$("TD[title*='February Vacation']").addClass("highlight");
+	  } else {
+		$("TD[title*='February Vacation']").removeClass("highlight");
+	  }
+	});
+	
+ 	$("#aprilvacation").on("mouseover mouseout", function(event) {
+	  if ( event.type == "mouseover" ) {
+		$("TD[title*='April Vacation']").addClass("highlight");
+	  } else {
+		$("TD[title*='April Vacation']").removeClass("highlight");
+	  }
+	});
+	
+ 	$("#christmasvacation").on("mouseover mouseout", function(event) {
+	  if ( event.type == "mouseover" ) {
+		$("TD[title*='Christmas Vacation']").addClass("highlight");
+	  } else {
+		$("TD[title*='Christmas Vacation']").removeClass("highlight");
+	  }
+	});
+	
+ 	$("#easterbreak").on("mouseover mouseout", function(event) {
+	  if ( event.type == "mouseover" ) {
+		$("TD[title*='Easter Vacation']").addClass("highlight");
+	  } else {
+		$("TD[title*='Easter Vacation']").removeClass("highlight");
+	  }
+	});
+	
+	$("#chinesenewyear").on("mouseover mouseout", function(event) {
+	  if ( event.type == "mouseover" ) {
+		$("TD[title*='Chinese New Year']").addClass("highlight");
+	  } else {
+		$("TD[title*='Chinese New Year']").removeClass("highlight");
+	  }
+	});
+	
+	 $("#diwali").on("mouseover mouseout", function(event) {
+	  if ( event.type == "mouseover" ) {
+		$("TD[title*='Diwali']").addClass("highlight");
+	  } else {
+		$("TD[title*='Diwali']").removeClass("highlight");
+	  }
+	});
+	
+		//clear the calendar
+		var dayarray=[];
+		$("#col1").empty();
+		var schooldaycounter = 1;
+		var instructhourscounter = 0;
+		console.clear() 
+		var hours990= new Date();
+		var day180 = new Date();
+	
+		//get the date from date picker
+		var firstdayofschool = $('#datepicker').datepicker( "getDate" )
+		
+		//set the last day of school a year from then
+		var lastdayofschool = new Date(firstdayofschool);
+		lastdayofschool.setYear(firstdayofschool.getFullYear()+ +1);
+		
+		//run the script from the first day of the first month of school
+		startdate = new Date(firstdayofschool);
+		startdate.setDate(1);
+
+//GO THROUGH 365 DAYS FROM THE START DATE (YES, MISSING A DAY WITH LEAP YEARS...doesn't matter)
+		for (var i = 0; i < 365; i++) { 
+
+			//THIS THE DAY WE ARE ANALYZING
+			var newdate = new Date(startdate);
+			newdate.setDate(startdate.getDate() + +i);
+			
+			//isaschoolday starts at 1
+			isaschoolday = 1;
+			isahalfday = 0;
+
+			
+			//clear the descriptions for this new date
+			desc=[];
+			
+			//everything before the first day of school is a holiday.
+			if (newdate<firstdayofschool) {
+				isaschoolday=0;
+				desc.push('Summer Break');
+			}
+			
+			//is it a weekend?
+			if (newdate.getDay() == 6 || newdate.getDay() == 0) {
+				desc.push('Weekend');
+				isaschoolday = 0;
+			};
+
+				var jan1 = new Date(startdate);
+				jan1.setDate(1);
+				jan1.setMonth(0);
+				jan1.setYear(startdate.getFullYear()+ +1);
+				
+			//is it newyearsday
+			if($('#newyearsday').is(':checked')) {
+				if ( (newdate.getDate() == 1) && (newdate.getMonth() == 0) ) {
+					desc.push('New Years');
+					isaschoolday =0;
+				}
+				
+				//if newyears is a sunday then jan 2 is a holiday
+				if ( jan1.getDay() == 0) {
+					if (newdate.getMonth() == 0 && newdate.getDate() == 2) {
+						desc.push('New Years');
+						isaschoolday = 0;
+					}
+				}
+				
+				//if newyears is a saturday then jan 3 is a holiday
+				if (jan1.getDay() == 6 ) {
+					if (newdate.getMonth() == 0 && newdate.getDate() == 3) {
+						desc.push('New Years');
+						isaschoolday = 0;
+					}
+				}
+				
+				//if newyears is a thursday then friday is a holiday because that's just the way it is
+				if (jan1.getDay() == 4 ) {
+					if (newdate.getMonth() == 0 && newdate.getDate() == 2) {
+						desc.push('New Years');
+						isaschoolday = 0;
+					}
+				}
+			}  //NEW YEARS
+			
+			//is it veteransday
+			if($('#veteransday').is(':checked')) {
+				var nov11 = new Date();
+				nov11.setDate(11);
+				nov11.setMonth(10);
+				nov11.setYear(startdate.getFullYear());
+				if ( (newdate.getDate()==11) && (newdate.getMonth()==10) ) {
+					desc.push('Veterans Day');
+					isaschoolday =0;
+				}
+				
+				//if veterans is a sunday then Nov 12 is a holiday
+				if ( nov11.getDay() == 0) {
+					if (newdate.getMonth() == 10 && newdate.getDate() == 12) {
+						desc.push('Veterans Day');
+						isaschoolday = 0;
+					}
+				}
+				
+				//if veterans is a saturday then nov 13 is a holiday
+				if (nov11.getDay() == 6 ) {
+					if (newdate.getMonth() == 10 && newdate.getDate() == 13) {
+						desc.push('Veterans Day');
+						isaschoolday = 0;
+					}
+				}
+			}
+			
+			//is it christmasday
+			if($('#christmasday').is(':checked')) {
+				var dec25 = new Date(startdate);
+				dec25.setDate(25);
+				dec25.setMonth(11);
+				if ( (newdate.getDate()==25) && (newdate.getMonth()==11) ) {
+					desc.push('Christmas Day');
+					isaschoolday =0;
+				}
+				
+				//if christmas is a sunday then dec 26 is a holiday
+
+				if ( dec25.getDay() == 0) {
+					if (newdate.getMonth() == 11 && newdate.getDate() == 26) {
+						desc.push('Christmas Day');
+						isaschoolday = 0;
+					}
+				}
+				
+				//if christmas is a saturday then dec 27 is a holiday
+				if (dec25.getDay() == 6 ) {
+					if (newdate.getMonth() == 11 && newdate.getDate() == 27) {
+						desc.push('Christmas Day');
+						isaschoolday = 0;
+					}
+				}
+				
+				//if christmas is a tuesday then the monday before is a holiday
+				if (dec25.getDay() == 2 ) {
+					if (newdate.getMonth() == 11 && newdate.getDate() == 24) {
+						desc.push('Christmas Day');
+						isaschoolday = 0;
+					}
+				}
+				var ce = $("input[name=christmaseve]:checked").val()
+				//if christmas is a wed/thurs/frid the check Christmas Eve
+				if (dec25.getDay() == 3 || dec25.getDay() == 4 || dec25.getDay() == 5) {
+					if (ce == 'christmasevefull') {
+						if (newdate.getMonth() == 11 && newdate.getDate() == 24) {
+						desc.push('Christmas Eve');
+						isaschoolday = 0;
+						}
+					}
+					
+					if (ce == 'christmasevehalf') {
+						if (newdate.getMonth() == 11 && newdate.getDate() == 24) {
+						desc.push('Christmas Eve - Half');
+						isaschoolday = 1;
+						isahalfday =1;
+						
+						}
+					}
+	
+					
+					if (ce == 'christmaseveon') {
+						if (newdate.getMonth() == 11 && newdate.getDate() == 24) {
+						isaschoolday = 1;
+						}
+					}
+				
+				}
+				
+			}  //	Christmas
+			
+			//is it between christmas and new years
+			if($('#christmasvacation').is(':checked')) {
+				if (newdate>dec25 && newdate<jan1) {
+					desc.push('Christmas Vacation');
+					isaschoolday=0;
+				}
+			}
+			
+			//is it columbusday
+			if($('#columbusday').is(':checked')) {
+				if ( (Math.ceil(newdate.getDate()/7)==2) && (newdate.getMonth()==9) && (newdate.getDay()==1) ) {
+					desc.push('Columbus Day');
+					isaschoolday =0;
+				}
+			}
+			//is it laborday
+			if($('#laborday').is(':checked')) {
+				if ( (Math.ceil(newdate.getDate()/7)==1) && (newdate.getMonth()==8) && (newdate.getDay()==1) ) {
+					desc.push('Labor Day');
+					isaschoolday =0;
+				}
+			}
+			
+			//is it presidentsday
+			if($('#presidentsday').is(':checked')) {
+				if ( (Math.ceil(newdate.getDate()/7)==3) && (newdate.getMonth()==1) && (newdate.getDay()==1) ) {
+					presday = new Date(newdate);
+					var presidentweekend = new Date(presday);
+					presidentweekend.setDate(presday.getDate()+5);
+					desc.push('Presidents Day');
+					isaschoolday =0;
+				}
+			}
+			
+			//presidents week
+			if($('#presidentsweek').is(':checked')) {
+				if ( +newdate < +presidentweekend && +newdate >= +presday)   {
+					desc.push('February Vacation');
+					isaschoolday=0;
+				}
+			}
+			
+			//is it patriotsday
+			if($('#patriotsday').is(':checked')) {
+				if ( (Math.ceil(newdate.getDate()/7)==3) && (newdate.getMonth()==3) && (newdate.getDay()==1) ) {
+					patsday = new Date(newdate);
+					var patsweekend = new Date(patsday);
+					patsweekend.setDate(patsday.getDate()+5);
+					desc.push('Patriots Day');
+					isaschoolday =0;
+				}
+			}
+			
+			//April Vacation = Patriots week
+			if($('#aprilvacation').is(':checked')) {
+				if ( +newdate < +patsweekend  && +newdate >= +patsday)   {
+					desc.push('April Vacation');
+					isaschoolday=0;
+				}
+			}
+			
+			//is it martinlutherkingday
+			if($('#martinlutherkingday').is(':checked')) {
+				if ( (Math.ceil(newdate.getDate()/7)==3) && (newdate.getMonth()==0) && (newdate.getDay()==1) ) {
+					desc.push('MLK Day');
+					isaschoolday =0;
+				}
+			}
+				
+			//is it thanksgivingday
+			if($('#thanksgivingday').is(':checked')) {
+				if ( (Math.ceil(newdate.getDate()/7)==4) && (newdate.getMonth()==10) && (newdate.getDay()==4) ) {
+					desc.push('Thanksgiving');
+					isaschoolday =0;
+				}
+				
+				if ( (Math.ceil(newdate.getDate()/7)==4) && (newdate.getMonth()==10) && (newdate.getDay()==5) ) {
+					desc.push('Thanksgiving');
+					isaschoolday =0;
+				}
+			}
+			//is it memorialday
+			if($('#memorialday').is(':checked')) {
+				if (newdate.getMonth() == 4) {
+				var memday = new Date(newdate.getFullYear(), newdate.getMonth(), newdate.getDate())
+				
+				//calculates the last monday of may
+				//get last day of may
+				var d = new Date(newdate.getFullYear(), newdate.getMonth() + +1, 0);
+				//if the day is sunday, subtract 6 days else subtract to monday
+				if (d.getDay() == 0) {
+					 memday.setDate(d.getDate() - 6);
+					} else {
+					memday.setDate( d.getDate() - (d.getDay() - 1));
+					}
+					//is today the last monday in may?
+					if (newdate.getDate() == memday.getDate()) {
+						desc.push('Memorial Day');
+						isaschoolday = 0;
+					}
+				}
+			}
+			//is it roshhashana
+			if($('#roshhashana').is(':checked')) {
+				for (roshday of rosharray)
+				{
+					if (+newdate == +roshday) {
+					desc.push('Rosh Hashana');
+					isaschoolday=0;
+					}
+				}
+			}
+			
+			//is it chinese new year
+			if($('#chinesenewyear').is(':checked')) {
+				for (chinese of chinesearray)
+				{
+					if (+newdate == +chinese) {
+					desc.push('Chinese New Year');
+					isaschoolday=0;
+					}
+				}
+			}
+			
+			//is it diwali
+			if($('#diwali').is(':checked')) {
+				for (diwaliday of diwaliarray)
+				{
+					if (+newdate == +diwaliday) {
+					desc.push('Diwali');
+					isaschoolday=0;
+					}
+				}
+			}
+			
+			//is it yomkippur
+			if($('#yomkippur').is(':checked')) {
+				for (yomday of yomarray)
+				{
+					if (+newdate == +yomday) {
+					desc.push('Yom Kippur');
+					isaschoolday=0;
+					}
+				}
+			}
+			
+			//is it good friday
+			if($('#goodfriday').is(':checked')) {
+				for (goodday of goodarray)
+				{
+					if (+newdate == +goodday) {
+					desc.push('Good Friday');
+					isaschoolday=0;
+					}
+				}
+			}
+			
+			//is it easter break
+			if($('#easterbreak').is(':checked')) {
+			for (goodday of goodarray)
+				{
+					easterstart = new Date(goodday);
+					easterstart.setDate(goodday.getDate()-5);
+					if (+newdate > +easterstart && +newdate < +goodday) {
+					desc.push('Easter Vacation');
+					isaschoolday=0;
+					}
+				}
+			
+			}
+			
+			if (schooldaycounter == 180) {
+				day180 = new Date(newdate);
+				$("#day180").html(cal_months_labels[day180.getMonth()] + " - " + day180.getDate() + " - " + day180.getFullYear());
+				}
+			
+			//185 school days - will make user-enterable at some point
+			if (schooldaycounter == 185) {
+				lastdayofschool = new Date(newdate);
+				$('#lastdayofschool').html(cal_months_labels[lastdayofschool.getMonth()] + " - " + lastdayofschool.getDate() + " - " + lastdayofschool.getFullYear());
+			}
+			
+			//everything after the last day of school is a holiday.
+			if (newdate>lastdayofschool) {
+				isaschoolday=0;
+				desc.push('Summer Break');
+			}
+			
+			//FINALLY CHECK IF THE USER WANTS THIS DAY TOGGLED ON OR OFF and do it
+			if(userdates.length > 0){   
+			
+				//this array is not empty 
+				var userdatelen = userdates.length;
+				for (var ii=0; ii<userdatelen; ii++) {
+					
+				//convert the userdates id into a date
+					var temparts = userdates[ii];
+					temparts = temparts.replace('#','');
+					var userdateparts = temparts.split('-');
+						if (userdateparts[2] == newdate.getFullYear() && +(userdateparts[0]-1) == newdate.getMonth() && userdateparts[1] == newdate.getDate()) {
+
+						//toggle the schoolday
+						isaschoolday = (isaschoolday==0 ? 1 : 0);
+						
+						//add user to desc
+						desc.push('User');
+					}
+
+				}
+			}
+
+
+
+			
+			
+	//ONCE WE KNOW IF THIS IS A SCHOOL DAY OR NOT, DO MORE STUFF LIKE ADD THE HOURS AND DAYS
+			
+			//if it's a school day increase the hours
+			if (isaschoolday == 1) {
+				//if this is the day we pass the limit, show it
+
+				if ((instructhoursreq-instructhourscounter)>0 && (instructhoursreq-(instructhourscounter + +block_minutes[newdate.getDay()]))<=0 ) {
+					$('#hours990').html(cal_months_labels[newdate.getMonth()] + " - " + newdate.getDate() + " - " + newdate.getFullYear());
+				}
+				//instructhourscounter = instructhourscounter + +block_minutes[newdate.getDay()];
+				instructhourscounter = (isahalfday == 1) ? instructhourscounter + +(block_minutes[newdate.getDay()] * .5) : instructhourscounter + +block_minutes[newdate.getDay()];
+				$('#instructhourscounter').html(addCommas(instructhourscounter));
+			}
+			//add the day to the array of days
+			dayarray.push([new Date(+newdate), isaschoolday, desc, schooldaycounter, instructhourscounter, isahalfday]);
+			
+			//if it's a school day increase the counter
+			if (isaschoolday == 1) {
+				schooldaycounter++;
+			}
+			
+
+		}  //DAY LOOP
+		
+		//this builds the calendars
+		
+			var htmlout = '';
+			var calendarstart = new Date(startdate);
+			var k=0;
+			//rows
+			for (var i=1; i<=4; i++) {
+				htmlout += '<div style="clear:both;">';
+				
+					//columns
+					for (var j=1; j<=3; j++) {
+					k++;
+					if (j==3) {
+						htmlout += '<div>';
+					} else {
+						htmlout += '<div style="float:left";>';
+					}
+					calendarnextmonth = new Date(calendarstart);
+					calendarnextmonth.setMonth(calendarstart.getMonth() + +(k-1));
+					//THIS SETS THE MONTH OF THE CALENDAR - STARTMONTH + K
+					var cal = new Calendar(calendarnextmonth.getMonth(), calendarnextmonth.getFullYear());
+					cal.generateHTML();
+					htmlout += cal.getHTML();
+					htmlout += '</div>';
+					} // j
+					
+				htmlout += '</div>';
+			}  // i
+			
+			$("#col1").html(htmlout);
+			
+//THIS LOOPS THROUGH THE DAYS AND DOES SHIT TO EAch DAY IN THE CALENDAR, LIKE CHANGE IT'S , ADDS A CLICK FUNCTION, ETC.
+			var len = dayarray.length;
+			for (var i=0; i<len; i++) {
+			//	THIS BUILDS THE ID OF THE DAY CELL FROM THE DATE
+				var dayid = '#' + ("0" + (dayarray[i][0].getMonth()+1)).slice(-2) + '-' + ("0" + (dayarray[i][0].getDate())).slice(-2) + '-' + dayarray[i][0].getFullYear();
+				
+				//IF IT'S NOT A SCHOOL DAY DO THIS
+				if (dayarray[i][1]==0) {
+					
+					$(dayid).addClass("noschool");
+					$(dayid).removeAttr('title');
+					$(dayid).attr('title', dayarray[i][2]);
+					if ($.inArray('Weekend', dayarray[i][2]) > -1 ) {
+						$(dayid).addClass("weekend");
+						} else {
+						$(dayid).addClass("holiday");
+						}
+					} else {
+					
+					//IF It's a half day do this:
+					if (dayarray[i][5]==1) {
+						$(dayid).addClass("halfday");
+					} else {
+						//not a half day					
+						//IF IT IS A SCHOOL DAY DO THIS
+						//actually, nothing...
+						}
+						$(dayid).removeClass("noschool weekend holiday");
+						$(dayid).removeAttr('title');
+						$(dayid).attr('title', 'day: ' + dayarray[i][3] + ', ' + cal_days_labels[dayarray[i][0].getDay()] + ' - ' + addCommas(dayarray[i][4]) + ' min. ' + addCommas(instructhoursreq-dayarray[i][4]) + ' remain');
+					}
+					
+				//PUT THE CLICK BIND HERE - ADDS A CLICK FUNCTION TO EVERY DAY
+				$(dayid).bind( "click", function() {
+						userdatestoggle();
+				});
+					
+			} //END LOOP THROUGH DAYS
+
+			//make the last day of school a different color
+			var dayid = '#' + ("0" + (day180.getMonth()+1)).slice(-2) + '-' + ("0" + (day180.getDate())).slice(-2) + '-' + day180.getFullYear();
+			$(dayid).addClass('day180');
+			
+
+			
+			
+
+	});  // ON CHANGE
+		
+}); //DOCUMENT READY
+
+//CALENDAR BUILDER SCRIPT
+function Calendar(month, year) {
+  this.month = (isNaN(month) || month == null) ? cal_current_date.getMonth() : month;
+  this.year  = (isNaN(year) || year == null) ? cal_current_date.getFullYear() : year;
+  this.html = '';
+}
+
+Calendar.prototype.generateHTML = function(){
+
+  // get first day of month
+  var firstDay = new Date(this.year, this.month, 1);
+  var startingDay = firstDay.getDay();
+  
+  // find number of days in month
+  var monthLength = cal_days_in_month[this.month];
+  
+  // compensate for leap year
+  if (this.month == 1) { // February only!
+    if((this.year % 4 == 0 && this.year % 100 != 0) || this.year % 400 == 0){
+      monthLength = 29;
+    }
+  }
+  
+  // do the header
+  var monthName = cal_months_labels[this.month]
+  var html = '<table class="calendar-table">';
+  html += '<tr><th colspan="7">';
+  html +=  monthName + "&nbsp;" + this.year;
+  html += '</th></tr>';
+  html += '<tr class="calendar-header">';
+  for(var i = 0; i <= 6; i++ ){
+    html += '<td class="calendar-header-day">';
+    html += cal_days_labels[i];
+    html += '</td>';
+  }
+  html += '</tr><tr>';
+
+  // fill in the days
+  var day = 1;
+  // this loop is for is weeks (rows)
+  for (var i = 0; i < 9; i++) {
+    // this loop is for weekdays (cells)
+    for (var j = 0; j <= 6; j++) { 
+      html += '<td class="calendar-day"';
+	  if (day <= monthLength && (i > 0 || j >= startingDay)) {
+		  html += ' id="';
+		  html +=  ("0" + (this.month + 1)).slice(-2) + '-' + (day >= 10 ? day : "0"+day.toString()) + '-' + this.year; 
+		  html += '"';
+	  }
+	  html += '>';
+      if (day <= monthLength && (i > 0 || j >= startingDay)) {
+        html += day;
+        day++;
+      }
+      html += '</td>';
+    }
+    // stop making rows if we've run out of days
+    if (day > monthLength) {
+      break;
+    } else {
+      html += '</tr><tr>';
+    }
+  }
+  html += '</tr></table>';
+
+  this.html = html;
+}
+
+Calendar.prototype.getHTML = function() {
+  return this.html;
+}
+
+//ADD COMMAS TO A NUMBER (FOR PRETTINESS)
+function addCommas(nStr)
+{
+	nStr += '';
+	x = nStr.split('.');
+	x1 = x[0];
+	x2 = x.length > 1 ? '.' + x[1] : '';
+	var rgx = /(\d+)(\d{3})/;
+	while (rgx.test(x1)) {
+		x1 = x1.replace(rgx, '$1' + ',' + '$2');
+	}
+	return x1 + x2;
+}
+
+//REMOVE AN ELEMENT FROM AN ARRAY - USED TO REMOVE USER DATES FROM USERDATES ARRAY
+  function remove(arr, item) {
+      for(var i = arr.length; i--;) {
+          if(arr[i] === item) {
+              arr.splice(i, 1);
+          }
+      }
+  }
+  
+//USERDATES TOGGLE FUNCTION
+function userdatestoggle() {
+	var dayid="#" + event.target.id;
+//IS IT IN THE ARRAY? IF SO REMOVE IT, IF NOT ADD IT
+	if(jQuery.inArray(dayid, userdates)!==-1) {
+			remove(userdates, dayid);
+		} else {
+			userdates.push(dayid);
+		}
+	//$('#userdates').html(userdates.length + ' - ' +userdates);
+	$('#thanksgivingday').change();
+	$('#userdates').html(userdates.length + ' - ' +formatuserdates(userdates));
+}
+
+function formatuserdates(userdates) {
+	if (userdates.length>0) {
+		var returntext ='';
+		var userdatelen = userdates.length;
+		for (var ii=0; ii<userdatelen; ii++) {
+			//convert the userdates id into a date
+			var temp = userdates[ii].replace("#","");
+			temparts = temp.split('-');
+			//console.log(temparts);
+			returntext += ('  ' + cal_months_labels[temparts[0]-1] + ' ' + temparts[1] + ', ' + temparts[2]);
+			} 
+		} else {
+		returntext ='';
+		}
+	return returntext;
+}
+
+</script>
+
+</head>
+<body>
+School Calendar Tool
+<br>
+<div id="container2">
+	<div id="container1">
+		<div id="col1">
+			<!-- Column one start -->
+			
+
+				<!-- Column one end -->
+		</div>
+		<div id="col2">
+			<!-- Column two start -->
+			<table border="1">
+
+			<tr><td colspan=2>First Day of School: <input type="text" id="datepicker"></td></tr>
+			<tr><td colspan=2>Last Day of scheduled school (day 185): <span style="font-weight:bold;" id="lastdayofschool"></span></td></tr>
+			<tr><td colspan=2>Last Day of required instruction (day 180): <span style="font-weight:bold;" id="day180"></span></td></tr>
+			<tr><td colspan=2>Last Day of required instruction (990 hours): <span style="font-weight:bold;" id="hours990"></span></td></tr>
+			<tr><td colspan=2>Dates Chosen by You: <span style="font-weight:bold;" id="userdates"></span></td></tr>
+			<tr><td colspan=2>Minutes of instruction: <span style="font-weight:bold;" id="instructhourscounter"></span></td></tr>
+			<tr><td colspan=2><a target="_blank" href="http://lps.lexingtonma.org/domain/251">LPS block schedule used for minute counter</a> - 990 hours or 59,400 minutes are required</td></tr>
+			<tr><th colspan=2>Required Holidays by Law (Massachusetts 185 school days required)</td><td></td></tr>
+
+			<tr><td><input type=checkbox CHECKED name="newyearsday" id="newyearsday"></td><td>New Years Day, January 1 (monday if falls on weekend)</td>
+		
+			<tr><td><input type=checkbox CHECKED name="martinlutherkingday" id="martinlutherkingday"></td><td>Martin Luther Kings Birthday (3rd Monday in January)</td></tr>
+			<tr><td><input type=checkbox CHECKED name="presidentsday" id="presidentsday"></td><td>Presidents' Day (3rd Monday in February) unchecking also drop Feb vac</td>
+			</tr>
+			<tr><td><input type=checkbox CHECKED name="patriotsday" id="patriotsday"></td><td>Patriots Day (3rd Monday in April) unchecking also drop April vac.</td></tr>
+			<tr><td><input type=checkbox CHECKED name="memorialday" id="memorialday"></td><td>Memorial Day (Last Monday in May)</td></tr>
+			<tr><td><input type=checkbox CHECKED name="laborday" id="laborday"></td><td>Labor day (First Monday in September)</td></tr>
+			<tr><td><input type=checkbox CHECKED name="columbusday" id="columbusday"></td><td>Columbus Day (2nd Monday in October)</td></tr>
+			<tr><td><input type=checkbox CHECKED name="veteransday" id="veteransday"></td><td>Veterans Day 	November 11, 2015</td></tr>
+			<tr><td><input type=checkbox CHECKED name="thanksgivingday" id="thanksgivingday"></td><td>Thanksgiving Day (4th Thursday in November)</td></tr>
+			<tr><td><input type=checkbox CHECKED name="christmasday" id="christmasday"></td><td>Christmas Day December 25 unchecking also drop Christ vac.
+			<br>
+			
+			<input type="radio" name="christmaseve" value="christmasevefull" id="christmaseve" CHECKED>Christmas Eve - No School
+			<br>
+			<input type="radio" name="christmaseve" value="christmasevehalf" id="christmaseve">Christmas Eve - Half Day (counts as instructional day)
+			<br>
+			<input type="radio" name="christmaseve" value="christmaseveon" id="christmaseve">Christmas Eve - School
+			</td></tr>
+			<tr><th colspan=2>Other Holidays - days normally 'no school' in Lexington, MA are checked by default</td></tr>
+			<tr><td><input type=checkbox CHECKED name="christmasvacation" id="christmasvacation"></td><td>Christmas Vacation = All days between Christmas and New Years</td></tr>
+			<tr><td><input type=checkbox CHECKED name="presidentsweek" id="presidentsweek"></td><td>Feb Vacation = the weekdays following Presidents Day</td></tr>
+			<tr><td><input type=checkbox CHECKED name="aprilvacation" id="aprilvacation"></td><td>April Vacation = the weekdays following Patriots Day</td></tr>
+			<tr><td><input type=checkbox name="easterbreak" id="easterbreak"></td><td>Easter Break = the weekdays preceeding Good Friday</td></tr>
+
+			<tr><td><input type=checkbox CHECKED name="roshhashana" id="roshhashana"></td><td>Roshhashana - Jewish New Year (until 2020)</td></tr>
+			<tr><td><input type=checkbox CHECKED name="yomkippur" id="yomkippur"></td><td>Yom Kippur - Jewish Holiday (until 2020)</td></tr>
+			<tr><td><input type=checkbox CHECKED name="goodfriday" id="goodfriday"></td><td>Good Friday - Christian Holiday (until 2020)</td></tr>
+			<tr><td><input type=checkbox name="chinesenewyear" id="chinesenewyear"></td><td>Chinese New Year (until 2025)</td></tr>
+			<tr><td><input type=checkbox name="diwali" id="diwali"></td><td>Diwali (until 2030)</td></tr>
+			<tr><td colspan=2><br>
+			To prevent 'orphan' days, the code is set up so that if New Years is a Thursday, the next day is a holiday. Likewise, if Christmas is a Tuesday, the previous day is a holiday.</td></tr>
+			<tr><td colspan=2>Some links:
+			<br>
+			<a href="http://www.doe.mass.edu/lawsregs/603cmr27.html?section=03" target="_blank">The law regarding school days in Massachusetts</a>
+			<br>
+			summary: We need to schedule 185 days ad actually have 180 (leaves 5 days for snow and meteor scares).
+			<br>
+			<a href="http://edsource.org/wp-content/uploads/95051.pdf" target="_blank">List of most other states' requirements</a>
+			<br>
+			<a href="http://www.doe.mass.edu/resources/holidays.html" target="_blank">List of lots of holidays the DOE posted so it looks open-minded</a>
+			<br>
+			<a href="http://www.sec.state.ma.us/cis/cishol/holidx.htm" target="_blank">Massachusetts official holidays</a>
+			<br>
+			<a href="http://lexington.massteacher.org/files/lea_contract_2012_2015.pdf" target="_blank">Lexington Teacher Contract</a>
+			</td></tr>
+			<tr><td colspan=2><span style="font-size: 13px"><br><a href="mailto:ssaltman@gmail.com" style="font-size: 13px"  target="_blank">Email me</a>.  I made this using the finest recycled javascript code. You can see everything, just view-source.<br>Version March 15, 2015. Probably still bugs.
+			
+</td></tr>
+			</table>	
+			<!-- Column two end -->
+		</div>
+	</div>
+</div>
+
+</body>
+</html>
